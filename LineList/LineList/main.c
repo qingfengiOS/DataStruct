@@ -26,17 +26,6 @@ typedef struct {
     int length;
 } SqList;
 
-
-
-/**
- 线性表的单链表存储结构
- */
-typedef struct Node {
-    ElementType data;
-    struct Node *next;
-}Node;
-typedef struct Node *LinkList;
-
 #pragma mark - 线性表的顺序存储
 SqList makeList() {
     SqList list;
@@ -92,6 +81,15 @@ Status ListDelete(SqList *L, int i, ElementType *e) {
 
 
 #pragma mark - 线性表的链式存储
+/**
+ 线性表的单链表存储结构
+ */
+typedef struct Node {
+    ElementType data;
+    struct Node *next;
+}Node;
+typedef struct Node *LinkList;
+
 //随机产生n个元素的值，建立带表头结点的单链线性表L（头插法）
 LinkList CreateLinkListHead(LinkList *L, int n) {
     
@@ -190,6 +188,110 @@ Status ClearList(LinkList *L) {
     (*L)->next = NULL;
     return OK;
 }
+
+
+#pragma mark - 静态链表
+/*
+ 用数组描述的链表叫做静态链表，这种描述方法还有起名叫做游标实现法
+ */
+#define MSIZE 1000
+typedef struct {
+    ElementType data;
+    int current;//游标，为0的时候表示无指向
+} Component,StaticLinkList[MSIZE];
+
+/* 将一维数组space中各分量链成一备用链表， */
+Status InitList(StaticLinkList space) {
+    int i;
+    for (i = 0; i < MSIZE - 1; i++) {
+        space[i].current = i + 1;
+    }
+    //目前静态链表为空，最后一个元素的cur为0
+    space[MSIZE - 1].current = 0;
+    return OK;
+}
+
+/*为了辨明数组中哪些分量未被使用，解决的办法是将所有未被使用过的及已被删除的分量用游标链成一个备用的链表，每当进行插入时，便可以从备用链表上取得第一个结点作为待插入的新结点。
+ */
+
+/**
+ 若备用空间链表非空，则返回分配的节点下标，否则返回0
+ */
+int Malloc_SLL(StaticLinkList space) {
+    //当前数组第一个元素的cur存的值就是要返回的第一个备用空闲的下标
+    int i = space[0].current;
+    
+    //由于要拿出一个分量来使用，所以把它下一个分量用做备用
+    if (space[0].current) {
+        space[0].current = space[i].current;
+    }
+    return i;
+}
+
+/* 初始条件：静态链表L已存在。操作结果：返回L
+  中数据元素个数 */
+int ListLength(StaticLinkList L) {
+    int j = 0;
+    int i = L[MSIZE - 1].current;
+    while (i){
+        i = L[i].current;
+        j++;
+    }
+    return j;
+}
+
+/*在L中的第i个元素之前插入新的元素e*/
+Status StaticListInsert(StaticLinkList L, int i, ElementType e) {
+    int j, k, l;
+    //注意k首先是最后一个元素的下标
+    k = MSIZE - 1;
+    if (i < 1 || i > ListLength(L) + 1) {//下标非法，无法插入
+        return ERROR;
+    }
+    //获取空闲分量下标的
+    j = Malloc_SLL(L);
+    if (j) {
+        //将数据赋值给这个分量的data
+        L[j].data = e;
+        //找到第i个元素之前的位置
+        for (l = 1; l < i - 1; l++) {
+            k = L[k].current;
+        }
+        L[j].current = L[k].current;
+        L[k].current = j;
+        return OK;
+    }
+    
+    return ERROR;
+}
+
+/* 将下标为k的空闲结点回收到备用链表 */
+void Free_SSL(StaticLinkList space, int k) {
+    /* 把第一个元素cur值赋给要删除的分量cur */
+    space[k].current = space[0].current;
+    /* 把要删除的分量下标赋值给第一个元素的cur */
+    space[0].current = k;
+}
+
+Status StaticListDelete(StaticLinkList L, int i) {
+    int j,k;
+    if (i < 1 || i > ListLength(L)) {
+        return ERROR;
+    }
+    
+    k = MSIZE - 1;
+    for (j = 1; j <= i; j++) {
+        k = L[k].current;
+    }
+    j = L[k].current;
+    L[k].current = L[j].current;
+    Free_SSL(L, j);
+    return OK;
+}
+/*
+ 总的来说，静态链表其实是为了给没有指针的高级语言设计的一种实现单链表能力的方法。尽管大家不一定会用得上，但这样的思考方式是非常巧妙的，应该理解其思想，以备不时之需。
+ */
+
 
 #pragma mark - main
 int main(int argc, const char * argv[]) {
