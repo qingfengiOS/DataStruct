@@ -97,6 +97,89 @@ Status DoubleStackPoP(SqDoubleStack *S, SElementType *e, int stackNumber) {
  事实上，使用这样的数据结构，通常都是当两个栈的空间需求有相反关系时，也就是一个栈增长时另一个栈在缩短的情况。就像买卖股票一样，你买入时，一定是有一个你不知道的人在做卖出操作。有人赚钱，就一定是有人赔钱。这样使用两栈共享空间存储方法才有比较大的意义。否则两个栈都在不停地增长，那很快就会因栈满而溢出了。
  */
 
+#pragma mark - 栈的链式存储结构及实现
+typedef struct StackNode {
+    SElementType data;
+    struct StackNode *next;
+} StackNode, *LinkStackPtr;
+
+typedef struct LinkStack {
+    LinkStackPtr top;
+    int count;
+} LinkStack;
+
+/* 插入元素e为新的栈顶元素 */
+Status LinkStackPush (LinkStack *S, SElementType e) {
+    
+    //分配新内存空间
+    LinkStackPtr s = (LinkStackPtr)malloc(sizeof(StackNode));
+    s->data = e;
+    
+    //把当前的栈顶元素赋值给新结点的直接后继
+    s->next = S->top;
+    
+    //栈顶指针指向新节点s
+    S->top = s;
+    
+    //栈扩容
+    S->count++;
+    return OK;
+}
+
+/* 若栈不空，则删除S的栈顶元素，用e返回其值，
+  并返回OK；否则返回ERROR */
+Status LinkStackPop(LinkStack *S, SElementType *e) {
+
+    
+    //取出节点元素
+    *e = S->top->data;
+    
+    //释放
+    LinkStackPtr p;
+    p = S->top;
+    S->top = S->top->next;
+    free(p);
+    S->count--;
+    return OK;
+}
+
+
+#pragma mark - 斐波那契数列
+/**
+ 循环求斐波那契数列
+ */
+int fibonacci(int n) {
+    int b[n];
+    b[0] = 0;
+    b[1] = 1;
+    if (n < 2) {
+        return b[n];
+    }
+    int num1 = 1;
+    int num2 = 0;
+    int numN = 0;
+    for (int i = 2; i <= n; i++) {
+        numN = num1 + num2;
+        num2 = num1;
+        num1 = numN;
+    }
+    
+    return numN;
+}
+
+/**
+ 递归求斐波那契数列
+ */
+int fibonacci2(int n) {
+    if (n == 0) {
+        return 0;
+    }
+    if (n == 1) {
+        return 1;
+    }
+    return fibonacci2(n - 1) + fibonacci2(n - 2);
+    
+}
 
 int main(int argc, const char * argv[]) {
     @autoreleasepool {
@@ -113,7 +196,9 @@ int main(int argc, const char * argv[]) {
         printf("%d\n",e);
         Push(&S, 5);
         
-        
+        int res = fibonacci(6);
+        int res2 = fibonacci2(6);
+        printf("res = %d\nres2 = %d\n",res,res2);
     }
     return 0;
 }
