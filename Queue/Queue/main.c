@@ -2,7 +2,7 @@
 //  main.c
 //  Queue
 //
-//  Created by 李一平 on 2018/8/2.
+//  Created by qingfengiOS on 2018/8/2.
 //  Copyright © 2018年 qingfengiOS. All rights reserved.
 //
 
@@ -64,7 +64,7 @@ typedef struct QNode {
     struct QNode *next;
 } QNode, *QueuePtr;
 
-typedef struct {
+typedef struct LinkQueue {
     QueuePtr front, rear;
 }LinkQueue;
 
