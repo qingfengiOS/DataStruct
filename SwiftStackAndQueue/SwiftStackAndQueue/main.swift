@@ -148,9 +148,7 @@ print(queue.dequeue() ?? Int())
 
 //MARK: - 用栈实现队列
 struct MyQueue {
-    
-    
-    
+
     typealias Element = Int
     
     var stackA: IntegerStack
@@ -208,7 +206,67 @@ print(myQueue.dequeue())
 print(myQueue.dequeue())
 
 
+//MARK: - 用队列实现栈
+struct MyStack {
+    var queueA: IntegerQueue
+    var queueB: IntegerQueue
+    
+    init() {
+        queueA = IntegerQueue()
+        queueB = IntegerQueue()
+    }
+    
+    var isEmpty:Bool {
+        return queueB.isEmpty && queueA.isEmpty
+    }
+    
+    var size: Int {
+        return queueA.size
+    }
+    
+    mutating func push(object: Int) {
+        queueA.enqueue(object)
+    }
+    
+    mutating func pop() -> Int {
+        shift()
+        let popObject = queueA.dequeue()
+        swap()
+        return popObject!
+    }
+    
+    var peek: Int? {
+        mutating get {
+            shift()
+            let peekObj = queueA.peek
+            queueB.enqueue(queueA.dequeue()!)
+            swap()
+            return peekObj
+        }
+    }
+    
+    mutating func shift() {
+        while queueA.size != 1 {
+            queueB.enqueue(queueA.dequeue()!)
+        }
+    }
+    
+    mutating func swap() {
+        (queueA, queueB) = (queueB, queueA)
+    }
+}
 
+var myStack: MyStack = MyStack()
+myStack.push(object: 1)
+myStack.push(object: 2)
+myStack.push(object: 3)
+myStack.push(object: 4)
+myStack.push(object: 5)
+
+print(myStack.isEmpty)
+print(myStack.peek as Any)
+print(myStack.pop())
+print(myStack.size)
 
 
 
