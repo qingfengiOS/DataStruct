@@ -37,7 +37,9 @@ protocol Stack {
     mutating func pop() -> Element
 }
 
-struct IntegerStack: Stack {
+struct TheStack: Stack {
+    typealias Element = Any
+    
     
     private var stack = [Element]()
     
@@ -49,22 +51,21 @@ struct IntegerStack: Stack {
         return stack.count
     }
     
-    var peek: Int? {
+    var peek: Element? {
         return stack.last
     }
     
-    
-    mutating func push(_ newElement: Int) {
+    mutating func push(_ newElement: Element) {
         stack.append(newElement)
     }
     
-    mutating func pop() -> Int {
+    mutating func pop() -> Element {
         return stack.popLast()!
     }
     
 }
 
-var stack = IntegerStack()
+var stack = TheStack()
 stack.push(0)
 stack.push(1)
 stack.push(2)//入栈
@@ -151,8 +152,8 @@ struct MyQueue {
 
     typealias Element = Int
     
-    var stackA: IntegerStack
-    var stackB: IntegerStack
+    var stackA: TheStack
+    var stackB: TheStack
     
     var isEmpty: Bool {
         return stackA.isEmpty && stackB.isEmpty
@@ -173,7 +174,7 @@ struct MyQueue {
     var peek: Int {
         mutating get {
             shift();
-            return stackB.peek!
+            return stackB.peek! as! Int
         }
     }
     
@@ -183,12 +184,12 @@ struct MyQueue {
     
     mutating func dequeue() -> Int {
         shift()
-        return stackB.pop()
+        return stackB.pop() as! Int
     }
     
     init() {
-        stackA = IntegerStack()
-        stackB = IntegerStack()
+        stackA = TheStack()
+        stackB = TheStack()
     }
 }
 print("--------------------------")
@@ -269,4 +270,94 @@ print(myStack.pop())
 print(myStack.size)
 
 
+//MARK: - 栈的应用
+/*
+ problem:
+ 给一个文件的绝对路径，将其简化。举个例子，路径是 "/home/"，简化后为 "/home"；路径是"/a/./b/../../c/"，简化后为 "/c"。
+ 
+ “. ” 代表当前路径。比如 “ /a/. ” 实际上就是 “/a”，无论输入多少个 “ . ” 都返回当前目录
+ “..”代表上一级目录。比如 “/a/b/.. ” 实际上就是 “ /a”，也就是说先进入 “a” 目录，再进入其下的 “b” 目录，再返回 “b” 目录的上一层，也就是 “a” 目录。
+ */
+func simplyPath(_ path: String) -> String {
+    
+    if path.count == 0 {
+        return ""
+    }
+    
+    let pathArray = path.components(separatedBy: "/")
+    
+    var stack = [String]()//用数组模拟栈
+    
+    for str in pathArray {
+        guard str != "." else {
+            continue
+        }
+        if str == ".." {
+            if stack.count > 0 {
+                stack.removeLast()
+            }
+        } else if str != "" {
+            stack.append(str)
+        }
+    }
+    
+    //使用reduce来组合集合中的所有元素并返回一个非集合类型的值。
+    let resPath = stack.reduce("") { total, ele in
+        "\(total)/\(ele)"
+    }
+    
+    return resPath.isEmpty ? "/" : resPath
+}
 
+print(simplyPath("/a/./b/../c/d/e"))
+
+
+//MARK: - Map Filter Reduce
+let array = [1, 2, 3, 4, 5]
+/**
+ Map
+ 
+ 使用 map 来遍历集合并对集合中每一个元素进行同样的操作
+ */
+var squarsArray = array.map { (element) -> Int in
+    element * element
+}
+print(squarsArray)
+
+
+/**
+Filter
+
+filter函数会遍历一个集合，并返回一个 Array,其中包含了集合中满足过滤条件的元素。
+ */
+var even = array.filter { (element) -> Bool in
+    element % 2 == 0
+}
+print(even)
+
+
+/**
+ Reduce
+ 
+ 使用reduce来组合集合中的所有元素并返回一个非集合类型的值。
+ */
+let res = array.reduce(10, +) // 效果等价于 10 + 1 + 2 + 3 + 4 + 5
+let res2 = array.reduce(10) { total, element in // 效果等价于 10 + 1 + 2 + 3 + 4 + 5
+    total + element
+}
+print("res = \(res)\nres2 = \(res2)")
+
+/**
+ flatMap
+ 
+ 1、最简单的用法是如同它的名字所描述的那样将一个二维数组拆开展平
+ 2、它可以判断集合中的不可选值，并将不可选值移出集合：
+ */
+let collections = [[5,2,7],[4,8],[9,1,3]]
+print(collections.flatMap{ $0 })// 展开二维数组
+
+
+let people: [String?] = ["Tom",nil,"Peter",nil,"Harry"]
+let ints = people.flatMap { $0 }//过滤nil，用compactMap代替
+//let ints = people.compactMap { $0 }//过滤nil
+print(ints)
