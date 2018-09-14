@@ -101,8 +101,8 @@ protocol Queue {
 struct IntegerQueue: Queue {
     
     typealias Element = Int
-    private var  left = [Element]()
-    private var  right = [Element]()
+    private var left = [Element]()
+    private var right = [Element]()
     
     var isEmpty: Bool {
         return left.isEmpty && right.isEmpty
@@ -148,8 +148,6 @@ print(queue.dequeue() ?? Int())
 
 //MARK: - 用栈实现队列
 struct MyQueue {
-    
-    
     
     typealias Element = Int
     
