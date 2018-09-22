@@ -27,9 +27,8 @@ func maxDepth(tree: TreeNode?) -> Int {
     guard let root = tree else {
         return 0
     }
-    return max(maxDepth(tree: root.left), maxDepth(tree: root.right))
+    return max(maxDepth(tree: root.left), maxDepth(tree: root.right)) + 1
 }
-
 
 func isValidBST(_ tree: TreeNode?) -> Bool {
     return helper(node: tree, nil, nil)
@@ -52,11 +51,42 @@ private func helper(node: TreeNode?, _ min: Int?, _ max:Int?) -> Bool {
     }
     
     return helper(node: node.left, min, node.value)  && helper(node: node.right, node.value, max)
-    
+}
+
+
+/// 栈的前序遍历
+func preorderTraversal(root: TreeNode?) -> [Int] {
+    var res = [Int]()
+    var stack = [TreeNode]()
+    var node = root
+
+    while !stack.isEmpty || node != nil {
+        if node != nil {
+            res.append(node!.value)
+            stack.append(node!)
+            node = node!.left
+        } else {
+            node = stack.removeLast().right
+        }
+    }
+    return res
 }
 
 
 
+var root = TreeNode(4)//根节点
 
+var leftTree = TreeNode(2)//左子树
+leftTree.left = TreeNode(1)
+leftTree.right = TreeNode(3)
 
+var rightTree = TreeNode(8)//右子树
+rightTree.left = TreeNode(6)
+rightTree.right = TreeNode(9)
 
+root.left = leftTree
+root.right = rightTree
+
+print(maxDepth(tree: root))
+print(isValidBST(root))
+print(preorderTraversal(root: root))
