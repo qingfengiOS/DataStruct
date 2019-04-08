@@ -23,7 +23,7 @@ class Node<T> {
 /// 单链表
 class LinkList<Element: Equatable> {
     
-    private var head = Node<Element>() //表头节点不存储元素,减少边界情况的处理
+    var head = Node<Element>() //表头节点不存储元素,减少边界情况的处理
     var size:Int {
         var count = 0
         var temp = head.next //表头节点不存储元素,所以从head开始
@@ -104,6 +104,10 @@ class LinkList<Element: Equatable> {
         }
     }
     
+    
+    /// 删除指定值的节点
+    ///
+    /// - Parameter value: 要删除节点的值
     func deleteNode(by value: Element) {
         var preNode = head
         var afterNode = head.next
@@ -116,15 +120,77 @@ class LinkList<Element: Equatable> {
             afterNode = afterNode?.next
         }
     }
+    
+    
+    /// 反转链表
+    ///
+    /// - Parameter head: 表头节点
+    func reverseList(head: Node<Element>) -> Node<Element>? {
+        var reversedHead: Node<Element>?
+        var currentNode: Node<Element>?
+        var preNode: Node<Element>?
+        
+        currentNode = head
+        while currentNode != nil {
+            let nextNode = currentNode!.next
+            if nextNode == nil {
+                reversedHead = currentNode
+            }
+            currentNode?.next = preNode
+            preNode = currentNode
+            currentNode = nextNode
+        }
+        return reversedHead
+    }
+    
+    
+    /// 链表环检测
+    ///
+    /// - Parameter head: 头部节点
+    /// - Returns: 是否有环
+    func hasCircle(head: Node<Element>) -> Bool {
+        var fast: Node<Element>? = head
+        var slow: Node<Element>? = head
+        
+        while fast != nil {
+            if fast === slow {
+                return true
+            }
+            fast = fast?.next?.next
+            slow = slow?.next!
+        }
+        return false
+    }
+
+    /// 寻找中间节点
+    ///
+    /// - Parameter head: 表头
+    /// - Returns:  中间节点
+    func halfNodeInList(head: Node<Element>) -> Node<Element>? {
+        var slow: Node<Element>? = head
+        var fast: Node<Element>? = head
+
+        while fast?.next != nil && fast?.next?.next != nil {
+            fast = fast?.next?.next
+            slow = slow?.next
+        }
+        return slow
+        
+    }
 }
 
+
+
 var list: LinkList<Int> = LinkList()
+list.insertToHead(node: Node(5))
 list.insertToHead(node: Node(4))
 list.insertToHead(node: Node(3))
 list.insertTohead(value: 2)
 list.insertTohead(value: 1)
 
 print(list.size)
+
+print(list.halfNodeInList(head: list.head)?.value ?? 0)//中间节点
 
 let value1 = list.accessValue(by: 2)
 print(value1?.value as Any)
@@ -137,4 +203,7 @@ print(list.size)
 
 list.deleteNode(by: 2)
 print(list.size)
+
+let newHead = list.reverseList(head: list.head)
+print(newHead?.value as Any)
 
